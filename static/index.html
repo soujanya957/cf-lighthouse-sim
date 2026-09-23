@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lighthouse viz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="vendor/codemirror/codemirror.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/codemirror/codemirror.js"></script>
+  <script src="vendor/codemirror/python.js"></script>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Lighthouse viz</h1>
+    <div class="chips">
+      <div class="chip" id="cConn" title="Crazyflie radio address"><i class="dot"></i><input id="uri" class="mono" spellcheck="false" autocomplete="off" aria-label="Radio address"></div>
+      <div class="chip off" id="cLh" title="Lighthouse"><small>LH</small><span id="lhbs" class="bs"></span></div>
+    </div>
+  </header>
+
+  <main>
+    <section id="left">
+      <div class="toolbar">
+        <button id="bSim" title="Play the parsed plan without flying">Run simulation</button>
+        <button id="bRun" class="primary" title="Preflight check, then fly the real drone">Run hardware</button>
+        <button id="bStop" class="danger" title="Stop: lands the drone, press again to kill" disabled>■ Stop</button>
+        <span class="grow"></span>
+        <input id="fname" class="mono" spellcheck="false" autocomplete="off" aria-label="File name" title="File name">
+        <button id="bSave" title="Save to this file name (⌘S)">Save</button>
+      </div>
+      <div id="editor"></div>
+      <div id="hdivider" title="Drag to resize"></div>
+      <div id="console"></div>
+    </section>
+    <div id="divider"></div>
+    <section id="right">
+      <div id="viewport"></div>
+      <div id="pos" class="overlay mono">
+        <div><b>x</b><span id="px">—</span></div>
+        <div><b>y</b><span id="py">—</span></div>
+        <div><b>z</b><span id="pz">—</span></div>
+        <div><b>|v|</b><span id="spd">—</span></div>
+      </div>
+      <div id="viewbar" class="overlay">
+        <button id="bCoords" class="toggle on" title="Show waypoint coordinates">Coords</button>
+        <button id="bClear" title="Clear flown trail">Clear</button>
+        <button id="bLayers" title="Layers">⋯</button>
+        <div id="layers" hidden>
+          <div class="views"><button data-view="iso">3D</button><button data-view="top">Top</button><button data-view="side">Side</button></div>
+          <label><input type="checkbox" data-layer="plan" checked> plan</label>
+          <label><input type="checkbox" data-layer="trail" checked> trail</label>
+          <label><input type="checkbox" data-layer="fov" checked> FoV</label>
+          <label><input type="checkbox" data-layer="rays" checked> rays</label>
+          <label><input type="checkbox" data-layer="labels" checked> labels</label>
+          <label class="range">scale <input type="range" id="scale" min="1" max="8" step="0.5" value="3"><span id="scaleval">3×</span></label>
+        </div>
+      </div>
+      <canvas id="attitude" class="overlay" width="220" height="250" title="Attitude"></canvas>
+      <div id="legend" class="overlay"><span>0</span><i></i><span id="vmax">1 m/s</span></div>
+    </section>
+  </main>
+
+  <div id="preflight" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pfTitle">
+      <h2 id="pfTitle">Preflight</h2>
+      <div class="steps">
+        <div class="step" data-step="radio"><i></i><b>Radio</b><span></span></div>
+        <div class="step" data-step="drone"><i></i><b>Drone</b><span></span></div>
+        <div class="step" data-step="basestations"><i></i><b>Base stations</b><span></span></div>
+        <div class="step" data-step="ready"><i></i><b>Ready</b><span></span></div>
+      </div>
+      <div class="actions">
+        <button id="pfCancel">Cancel</button>
+        <button id="pfRetry" hidden>Retry</button>
+        <button id="pfFly" class="primary" disabled>Fly</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
