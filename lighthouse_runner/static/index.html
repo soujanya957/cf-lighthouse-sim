@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lighthouse dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="vendor/codemirror/codemirror.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/codemirror/codemirror.js"></script>
+  <script src="vendor/codemirror/python.js"></script>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Lighthouse dashboard</h1>
+    <div class="chips">
+      <div class="chip" id="cSession" title="Hardware session"><i class="dot"></i><span id="sessionText">not connected</span></div>
+      <div class="chip off" id="cLh" title="Base stations: outlined = geometry on the drones, filled = seen by every connected drone, half = seen by some"><small>LH</small><span id="lhbs" class="bs">—</span></div>
+    </div>
+    <span class="grow"></span>
+    <button id="bDrones" title="Which radio address each Crazyflie ID uses">Drones</button>
+    <span id="fleetName" class="muted mono"></span>
+  </header>
+
+  <main>
+    <section id="left">
+      <div class="panel" id="projectsPanel">
+        <div class="panel-head">
+          <b>Project</b>
+          <select id="projects" aria-label="Project" title="Exports in lighthouse_runner/projects/"></select>
+          <span class="muted" id="projectInfo"></span>
+          <span class="grow"></span>
+          <button id="bRefresh" class="small" title="Read projects/ again">Refresh</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button id="bSim" class="step" title="Simulate the project and play it back"><i>1</i><span>Simulate</span></button>
+        <button id="bCheck" class="step" title="Connect the drones, show where they are and run the preflight"><i>2</i><span>Check drones</span></button>
+        <button id="bFly" class="step primary" title="Fly the checked drones" disabled><i>3</i><span>Fly</span></button>
+        <span class="grow"></span>
+        <button id="bStop" class="danger" title="Stop" hidden>Disconnect</button>
+      </div>
+      <div id="hint"></div>
+
+      <div id="simbar" hidden>
+        <button id="bPlay" class="small" title="Play / pause (space)">▶</button>
+        <input type="range" id="scrub" min="0" max="1" step="0.01" value="0" aria-label="Show time">
+        <span id="simTime" class="mono">0.0 / 0.0 s</span>
+        <select id="speed" aria-label="Playback speed">
+          <option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option>
+        </select>
+      </div>
+      <div id="simSummary" hidden></div>
+
+      <div id="robotsWrap">
+        <table id="robots">
+          <thead><tr><th></th><th>Robot</th><th>Crazyflie</th><th>Status</th><th>Position</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="codeBar">
+        <button id="bCode" class="link" aria-expanded="false">▸ Code</button>
+        <span class="grow"></span>
+        <button id="bClearLog" class="link" title="Clear the log">Clear log</button>
+      </div>
+      <div id="code" hidden>
+        <div id="tabs"></div>
+        <div id="editor"></div>
+        <div id="hdivider" title="Drag to resize"></div>
+      </div>
+      <div id="console"></div>
+    </section>
+    <div id="divider"></div>
+    <section id="right">
+      <div id="viewport"></div>
+      <div id="readout" class="overlay mono"></div>
+      <div id="viewbar" class="overlay">
+        <div class="views"><button data-view="iso">3D</button><button data-view="top">Top</button><button data-view="side">Side</button></div>
+        <button id="bClear" title="Clear flown trails">Clear</button>
+        <button id="bLayers" title="Layers">⋯</button>
+        <div id="layers" hidden>
+          <label><input type="checkbox" data-layer="plan" checked> planned paths</label>
+          <label><input type="checkbox" data-layer="trail" checked> flown trails</label>
+          <label><input type="checkbox" data-layer="fence" checked> fence</label>
+          <label><input type="checkbox" data-layer="fov" checked> base-station FoV</label>
+          <label><input type="checkbox" data-layer="rays" checked> rays</label>
+          <label><input type="checkbox" data-layer="labels" checked> labels</label>
+          <label class="range">scale <input type="range" id="scale" min="1" max="8" step="0.5" value="3"><span id="scaleval">3×</span></label>
+        </div>
+      </div>
+      <div id="legend" class="overlay"><span><i class="ghost"></i>simulated</span><span><i class="solid"></i>live</span></div>
+    </section>
+  </main>
+
+  <div id="flyDialog" class="modal" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="flyTitle">
+      <h2 id="flyTitle">Fly</h2>
+      <p id="flyText"></p>
+      <ul id="flyWarnings"></ul>
+      <p class="muted">Stop lands every drone. Press Stop again while they land to cut the motors.</p>
+      <div class="actions">
+        <button id="flyCancel">Cancel</button>
+        <button id="flyGo" class="primary">Fly</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dronesDialog" class="modal" hidden>
+    <div class="dialog wide" role="dialog" aria-modal="true" aria-labelledby="dronesTitle">
+      <h2 id="dronesTitle">Drones</h2>
+      <p class="muted">The radio address each Crazyflie ID answers on, saved to the fleet file. The channel, data rate
+        and address are stored on the drone itself (cfclient: Connect → Configure 2.x). Radio is which Crazyradio:
+        0 for the first one plugged in, 1 for a second.</p>
+      <div class="dtable">
+        <table id="droneTable">
+          <thead><tr><th>ID</th><th>Radio</th><th>Channel</th><th>Rate</th><th>Address</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="drow">
+        <button id="dAdd">+ Add drone</button>
+        <label class="filebtn" title="Read every robot's uri from Crazyswarm2's crazyflies.yaml">Import crazyflies.yaml…<input type="file" id="dImport" accept=".yaml,.yml" hidden></label>
+      </div>
+      <p id="dNote" class="muted"></p>
+      <p id="dError" class="derr"></p>
+      <div class="actions">
+        <button id="dCancel">Cancel</button>
+        <button id="dSave" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

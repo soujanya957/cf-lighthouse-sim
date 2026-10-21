@@ -1,0 +1,6 @@
+runs/
+cache/
+__pycache__/
+# This setup's drones and base-station calibration (fleet.yaml is made from fleet.example.yaml)
+/fleet.yaml
+/lighthouse*.yaml

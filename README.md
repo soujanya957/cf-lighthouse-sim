@@ -34,3 +34,17 @@ The page opens at http://127.0.0.1:8765. Next time, just activate and run the la
 3. **Run simulation** to check the path.
 4. Close cfclient, place the drone on the ground, then **Run hardware**. It runs preflight checks, then asks you to confirm **Fly**.
 5. **Stop** lands the drone. Press it again to cut the motors.
+
+## Fly webGUI projects on several drones
+
+[`lighthouse_runner/`](lighthouse_runner/README.md) flies Crazyswarm2 webGUI exports on one or more
+Lighthouse-tracked Crazyflies, without ROS or Vicon. It has its own dashboard at http://127.0.0.1:8766:
+
+```bash
+source cf-env/bin/activate
+pip install -r lighthouse-viz/lighthouse_runner/requirements.txt    # once
+python lighthouse-viz/lighthouse_runner/dashboard.py
+```
+
+Pick a project, give each robot a Crazyflie ID, then **Simulate → Check drones → Fly**. Calibration, radio addresses
+and troubleshooting are in [lighthouse_runner/README.md](lighthouse_runner/README.md).

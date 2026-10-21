@@ -1,0 +1,45 @@
+# Your Crazyflies and flight area. The runner copies this file to fleet.yaml the first time and uses that copy
+# (git ignores it), so edit fleet.yaml, or use Drones in the dashboard. --fleet picks another file.
+
+# Radio URI of each Crazyflie ID the webGUI project can be given. cfclient shows a drone's address under
+# Connect > Configure 2.x. Use the same channel for all drones on one Crazyradio, with different addresses.
+drones:
+  1: radio://0/80/2M/E7E7E7E701
+  2: radio://0/80/2M/E7E7E7E702
+  3: radio://0/80/2M/E7E7E7E703
+
+# Used for an ID not listed above ({id:02X}: the ID as two hex digits). Leave empty to require every ID above.
+uri_template: "radio://0/80/2M/E7E7E7E7{id:02X}"
+
+# Flight area in the Lighthouse frame, in meters. Flight targets outside it are clamped to it.
+# The frame is the one set when the base-station geometry was estimated in cfclient.
+fence:
+  x: [-1.5, 1.5]
+  y: [-1.5, 1.5]
+  z: [0.0, 2.0]
+
+safety:
+  kill_outside_fence: 0.4      # cut a drone's motors once it is this far (m) outside the fence; null: never
+  land_on_tracking_loss: 1.0   # land everyone once a drone's Lighthouse tracking has been out this long (s); null: never
+  land_on_low_battery: true    # land everyone when a drone reports low battery in flight
+  min_battery_v: 3.8           # resting battery voltage needed to pass the preflight
+  start_tolerance: 0.3         # how far (m) a drone may sit from its start position in starting_positions.yaml
+  min_separation: 0.3          # the dry run warns when two airborne drones come closer than this (m)
+
+# Optional: a Lighthouse system config saved from cfclient, so the dashboard shows the base stations before any drone
+# connects. Without it, they appear once a drone connects (read from the drone).
+# lighthouse_config: lighthouse.yaml
+
+# How often each drone reports its position (ms). With many drones on one radio, 100 leaves more room.
+pose_period_ms: 50
+
+# Firmware parameters set on every drone when it connects (RAM only: a reboot restores the defaults).
+# For example a gentler position controller:
+params: {}
+#  posCtlPid.xKp: 1.6
+#  posCtlPid.yKp: 1.6
+#  posCtlPid.xVelMax: 0.8
+#  posCtlPid.yVelMax: 0.8
+#  posCtlPid.zVelMax: 0.5
+#  posCtlPid.rLimit: 15.0
+#  posCtlPid.pLimit: 15.0

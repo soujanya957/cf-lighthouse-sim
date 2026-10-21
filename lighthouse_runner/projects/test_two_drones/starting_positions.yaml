@@ -1,0 +1,6 @@
+positions:
+    - [0, 0, 0]
+    - [0, 0.5, 0]
+names:
+    - "Drone 1"
+    - "Drone 2"
