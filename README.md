@@ -1,9 +1,58 @@
 # Lighthouse viz
 
-Edit, simulate, and fly your Lab 2 Crazyflie code from the browser.
+Edit, simulate, and fly your Crazyflie code from the browser.
 
-Requires the Lab 1 software setup (a `cf-env` virtual environment with `cflib`).
-Not set up yet? Follow [SETUP.md](SETUP.md) first.
+## Setup (once)
+
+Run these in the folder where you want to keep your Crazyflie work. They make a `cf-env` virtual environment with
+`cflib` and `cfclient`.
+
+**macOS**
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"   # skip if you have Homebrew
+brew install libusb
+python3 -m venv cf-env
+source cf-env/bin/activate
+pip install --upgrade pip
+pip install cflib cfclient
+```
+
+**Windows (PowerShell)**
+```powershell
+py -m venv cf-env
+.\cf-env\Scripts\Activate.ps1
+py -m pip install --upgrade pip
+py -m pip install cflib cfclient
+```
+
+- "running scripts is disabled": run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`, reopen
+  the terminal, and activate again.
+- Using cmd instead of PowerShell: activate with `cf-env\Scripts\activate`.
+
+**Linux**
+```bash
+sudo apt install python3 python3-pip python3-venv
+python3 -m venv cf-env
+source cf-env/bin/activate
+pip install cflib cfclient
+```
+
+Then allow USB access to the Crazyradio and Crazyflie, log out and back in, and plug in the Crazyradio:
+
+```bash
+sudo tee /etc/udev/rules.d/99-bitcraze.rules > /dev/null <<'EOF'
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE="0664", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="0101", MODE="0664", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE="0664", GROUP="plugdev"
+EOF
+sudo groupadd -f plugdev
+sudo usermod -a -G plugdev $USER
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+In every new terminal, activate the environment again: `source cf-env/bin/activate` (macOS / Linux) or
+`.\cf-env\Scripts\Activate.ps1` (Windows).
 
 ## Install and run
 

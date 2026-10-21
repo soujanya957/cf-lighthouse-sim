@@ -298,7 +298,7 @@ def make_handler(hub, runner, script):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--script", default=str(HERE / "flight.py"), help="flight script (default: the lab template, flight.py)")
+    ap.add_argument("--script", default=str(HERE / "flight.py"), help="flight script (default: the template, flight.py)")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-browser", action="store_true")
     args = ap.parse_args()

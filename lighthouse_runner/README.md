@@ -16,7 +16,7 @@ hand it drones that are flown with cflib, and each drone gets its position from 
 
 ## What you need
 
-- The setup in [SETUP.md](../SETUP.md): a `cf-env` virtual environment with `cflib` and `cfclient`.
+- A `cf-env` virtual environment with `cflib` and `cfclient` ([Setup](../README.md#setup-once)).
 - A Crazyradio (PA or 2.0).
 - Crazyflies with a **Lighthouse deck** (an LED ring deck is optional; without one, LED blocks are skipped).
 - Lighthouse V2 base stations, at least 2, set up so every part of the flight area sees 2 or more.
